@@ -1,0 +1,804 @@
+<!DOCTYPE html> <html> <head> 
+  <script>
+
+function updateDifference(resource) {
+    var requiredAmountInput = document.getElementById('required-amount-' + resource);
+    var availableInput = document.getElementById('available-' + resource);
+    var differenceInput = document.getElementById('difference-' + resource);
+
+    var requiredAmount = parseFloat(requiredAmountInput.value);
+    var available = parseFloat(availableInput.value);
+
+    if (!isNaN(requiredAmount) && !isNaN(available)) {
+      var difference = requiredAmount - available;
+      differenceInput.value = difference;
+    } else {
+      differenceInput.value = "";
+    }
+  }
+    function calculateSubTotal(table, row) {
+      var amountCell = document.getElementById(table + '-Amount-' + row);
+      var amount = parseFloat(amountCell.textContent);
+
+      var mainCell = document.getElementById(table + '-Main-' + row);
+      var mainInput = parseFloat(mainCell.value);
+
+      var farmValues = [];
+      for (var i = 1; i <= 7; i++) {
+        var farmCell = document.getElementById(table + '-Farm' + i + '-' + row);
+        var farmInput = parseFloat(farmCell.value);
+        farmValues.push(isNaN(farmInput) ? 0 : farmInput);
+      }
+
+      var totalFarmValue = farmValues.reduce(function (acc, curr) {
+        return acc + curr;
+      }, 0);
+
+      var subtotal = (isNaN(mainInput) ? 0 : mainInput) + totalFarmValue;
+
+      subtotal *= amount;
+
+      var subtotalCell = document.getElementById(table + '-Subtotal-' + row);
+      subtotalCell.textContent = isNaN(subtotal) ? '' : subtotal.toString();
+
+      calculateTotal(table);
+    }
+
+    function calculateTotal(table) {
+      var subtotalCells = document.querySelectorAll('#' + table + ' .subtotal-cell');
+      var totalCell = document.getElementById(table + '-Total');
+      var total = 0;
+      for (var i = 0; i < subtotalCells.length; i++) {
+        var subtotal = parseFloat(subtotalCells[i].textContent);
+        if (!isNaN(subtotal)) {
+          total += subtotal;
+        }
+      }
+      totalCell.textContent = total.toString();
+      if (table === 'food') {
+        updateFoodAvailable();
+      } else if (table === 'wood') {
+        updateWoodAvailable();
+      } else if (table === 'iron') {
+        updateIronAvailable();
+      } else if (table === 'silver') {
+        updateSilverAvailable();
+      }
+    }
+
+    function updateFoodAvailable() {
+      var foodTotal = parseFloat(document.getElementById('food-Total').textContent);
+      var foodAvailableInput = document.getElementById('Available-1');
+      foodAvailableInput.value = isNaN(foodTotal) ? '' : foodTotal.toString();
+    }
+
+    function updateWoodAvailable() {
+      var woodTotal = parseFloat(document.getElementById('wood-Total').textContent);
+      var woodAvailableInput = document.getElementById('Available-2');
+      woodAvailableInput.value = isNaN(woodTotal) ? '' : woodTotal.toString();
+    }
+
+    function updateIronAvailable() {
+      var ironTotal = parseFloat(document.getElementById('iron-Total').textContent);
+      var ironAvailableInput = document.getElementById('Available-3');
+      ironAvailableInput.value = isNaN(ironTotal) ? '' : ironTotal.toString();
+    }
+
+    function updateSilverAvailable() {
+      var silverTotal = parseFloat(document.getElementById('silver-Total').textContent);
+      var silverAvailableInput = document.getElementById('Available-4');
+      silverAvailableInput.value = isNaN(silverTotal) ? '' : silverTotal.toString();
+    }
+
+    function updateQuickCalculations() {
+      var quickTableRows = document.querySelectorAll('#TotalCalculator tbody tr');
+      var mainTableRows = document.querySelectorAll('#MainCalculator tbody tr');
+
+      for (var i = 0; i < quickTableRows.length; i++) {
+        var quickRequirementsInput = quickTableRows[i].querySelector('input.requirements-input');
+        var requirements = parseFloat(quickRequirementsInput.value);
+
+        var quickAvailableCell = quickTableRows[i].querySelector('td:nth-child(3) input');
+        var available = parseFloat(quickAvailableCell.value);
+
+        var difference = available - requirements;
+        var quickDifferenceCell = quickTableRows[i].querySelector('td:nth-child(4)');
+        quickDifferenceCell.textContent = isNaN(difference) ? '' : difference.toString();
+
+        var resourceType = quickTableRows[i].querySelector('td:nth-child(1)').textContent.trim().toLowerCase();
+        var mainSubtotalCell = mainTableRows[i].querySelector('.subtotal-cell');
+        var mainSubtotal = parseFloat(mainSubtotalCell.textContent);
+
+        if (resourceType === ' food') {
+          document.getElementById('Available-1').value = isNaN(mainSubtotal) ? '' : mainSubtotal.toString();
+        } else if (resourceType === ' wood') {
+          document.getElementById('Available-2').value = isNaN(mainSubtotal) ? '' : mainSubtotal.toString();
+        } else if (resourceType === ' iron') {
+          document.getElementById('Available-3').value = isNaN(mainSubtotal) ? '' : mainSubtotal.toString();
+        } else if (resourceType === ' silver') {
+          document.getElementById('Available-4').value = isNaN(mainSubtotal) ? '' : mainSubtotal.toString();
+        }
+      }
+    }
+  </script>
+<link type="text/css" rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+
+  <strong> <b> <h1> KOA RESOURCE CALCULATOR  </h1> </b> </strong>
+
+  <h2> Food </h2>
+  <table id="food">
+    <thead>
+<style>
+    table {
+      border-collapse: collapse;
+      position: relative;
+    }
+    table:before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      right: -8px;
+      bottom: -8px;
+      background: linear-gradient(to right, yellow, red, blue, green);
+      z-index: -1;
+    }
+    th, td {
+      border: 2px solid black;
+      padding: 10px;
+    }
+  </style>
+      <tr>
+        <th>Amount</th>
+        <th>Main</th>
+        <th>Farm1</th>
+<th>Farm2</th>
+<th>Farm3</th>
+<th>Farm4</th>
+<th>Farm5</th>
+<th>Farm6</th>
+<th>Farm7</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr>
+        <td id="food-Amount-1">1000</td>
+        <td><input type="number"
+ id="food-Main-1" oninput="calculateSubTotal('food', 1)"></td>
+        <td><input type="number" id="food-Farm1-1" oninput="calculateSubTotal('food', 1)"></td>
+<td><input type="number" id="food-Farm2-1" oninput="calculateSubTotal('food', 1)"></td>
+<td><input type="number" id="food-Farm3-1" oninput="calculateSubTotal('food', 1)"></td>
+<td><input type="number" id="food-Farm4-1" oninput="calculateSubTotal('food', 1)"></td>
+<td><input type="number" id="food-Farm5-1" oninput="calculateSubTotal('food', 1)"></td>
+<td><input type="number" id="food-Farm6-1" oninput="calculateSubTotal('food', 1)"></td>
+<td><input type="number" id="food-Farm7-1" oninput="calculateSubTotal('food', 1)"></td>
+
+<td id="food-Subtotal-1" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="food-Amount-2">3000</td>
+        <td><input type="number"
+ id="food-Main-2" oninput="calculateSubTotal('food', 2)"></td>
+        <td><input type="number" id="food-Farm1-2" oninput="calculateSubTotal('food', 2)"></td>
+<td><input type="number" id="food-Farm2-2" oninput="calculateSubTotal('food', 2)"></td>
+<td><input type="number" id="food-Farm3-2" oninput="calculateSubTotal('food', 2)"></td>
+<td><input type="number" id="food-Farm4-2" oninput="calculateSubTotal('food', 2)"></td>
+<td><input type="number" id="food-Farm5-2" oninput="calculateSubTotal('food', 2)"></td>
+<td><input type="number" id="food-Farm6-2" oninput="calculateSubTotal('food', 2)"></td>
+<td><input type="number" id="food-Farm7-2" oninput="calculateSubTotal('food', 2)"></td>
+
+<td id="food-Subtotal-2" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="food-Amount-3">5000</td>
+        <td><input type="number"
+ id="food-Main-3" oninput="calculateSubTotal('food', 3)"></td>
+        <td><input type="number" id="food-Farm1-3" oninput="calculateSubTotal('food', 3)"></td>
+<td><input type="number" id="food-Farm2-3" oninput="calculateSubTotal('food', 3)"></td>
+<td><input type="number" id="food-Farm3-3" oninput="calculateSubTotal('food', 3)"></td>
+<td><input type="number" id="food-Farm4-3" oninput="calculateSubTotal('food', 3)"></td>
+<td><input type="number" id="food-Farm5-3" oninput="calculateSubTotal('food', 3)"></td>
+<td><input type="number" id="food-Farm6-3" oninput="calculateSubTotal('food', 3)"></td>
+<td><input type="number" id="food-Farm7-3" oninput="calculateSubTotal('food', 3)"></td>
+
+<td id="food-Subtotal-3" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="food-Amount-4">10000</td>
+        <td><input type="number"
+ id="food-Main-4" oninput="calculateSubTotal('food', 4)"></td>
+        <td><input type="number" id="food-Farm1-4" oninput="calculateSubTotal('food', 4)"></td>
+<td><input type="number" id="food-Farm2-4" oninput="calculateSubTotal('food', 4)"></td>
+<td><input type="number" id="food-Farm3-4" oninput="calculateSubTotal('food', 4)"></td>
+<td><input type="number" id="food-Farm4-4" oninput="calculateSubTotal('food', 4)"></td>
+<td><input type="number" id="food-Farm5-4" oninput="calculateSubTotal('food', 4)"></td>
+<td><input type="number" id="food-Farm6-4" oninput="calculateSubTotal('food', 4)"></td>
+<td><input type="number" id="food-Farm7-4" oninput="calculateSubTotal('food', 4)"></td>
+
+<td id="food-Subtotal-4" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="food-Amount-5">30000</td>
+        <td><input type="number"
+ id="food-Main-5" oninput="calculateSubTotal('food', 5)"></td>
+        <td><input type="number" id="food-Farm1-5" oninput="calculateSubTotal('food', 5)"></td>
+<td><input type="number" id="food-Farm2-5" oninput="calculateSubTotal('food', 5)"></td>
+<td><input type="number" id="food-Farm3-5" oninput="calculateSubTotal('food', 5)"></td>
+<td><input type="number" id="food-Farm4-5" oninput="calculateSubTotal('food', 5)"></td>
+<td><input type="number" id="food-Farm5-5" oninput="calculateSubTotal('food', 5)"></td>
+<td><input type="number" id="food-Farm6-5" oninput="calculateSubTotal('food', 5)"></td>
+<td><input type="number" id="food-Farm7-5" oninput="calculateSubTotal('food', 5)"></td>
+
+<td id="food-Subtotal-5" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="food-Amount-6">50000</td>
+        <td><input type="number"
+ id="food-Main-6" oninput="calculateSubTotal('food', 6)"></td>
+        <td><input type="number" id="food-Farm1-6" oninput="calculateSubTotal('food', 6)"></td>
+<td><input type="number" id="food-Farm2-6" oninput="calculateSubTotal('food', 6)"></td>
+<td><input type="number" id="food-Farm3-6" oninput="calculateSubTotal('food', 6)"></td>
+<td><input type="number" id="food-Farm4-6" oninput="calculateSubTotal('food', 6)"></td>
+<td><input type="number" id="food-Farm5-6" oninput="calculateSubTotal('food', 6)"></td>
+<td><input type="number" id="food-Farm6-6" oninput="calculateSubTotal('food', 6)"></td>
+<td><input type="number" id="food-Farm7-6" oninput="calculateSubTotal('food', 6)"></td>
+
+<td id="food-Subtotal-6" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="food-Amount-7">150000</td>
+        <td><input type="number"
+ id="food-Main-7" oninput="calculateSubTotal('food', 7)"></td>
+        <td><input type="number" id="food-Farm1-7" oninput="calculateSubTotal('food', 7)"></td>
+<td><input type="number" id="food-Farm2-7" oninput="calculateSubTotal('food', 7)"></td>
+<td><input type="number" id="food-Farm3-7" oninput="calculateSubTotal('food', 7)"></td>
+<td><input type="number" id="food-Farm4-7" oninput="calculateSubTotal('food', 7)"></td>
+<td><input type="number" id="food-Farm5-7" oninput="calculateSubTotal('food', 7)"></td>
+<td><input type="number" id="food-Farm6-7" oninput="calculateSubTotal('food', 7)"></td>
+<td><input type="number" id="food-Farm7-7" oninput="calculateSubTotal('food', 7)"></td>
+
+<td id="food-Subtotal-7" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="food-Amount-8">500000</td>
+        <td><input type="number"
+ id="food-Main-8" oninput="calculateSubTotal('food', 8)"></td>
+        <td><input type="number" id="food-Farm1-8" oninput="calculateSubTotal('food', 8)"></td>
+<td><input type="number" id="food-Farm2-8" oninput="calculateSubTotal('food', 8)"></td>
+<td><input type="number" id="food-Farm3-8" oninput="calculateSubTotal('food', 8)"></td>
+<td><input type="number" id="food-Farm4-8" oninput="calculateSubTotal('food', 8)"></td>
+<td><input type="number" id="food-Farm5-8" oninput="calculateSubTotal('food', 8)"></td>
+<td><input type="number" id="food-Farm6-8" oninput="calculateSubTotal('food', 8)"></td>
+<td><input type="number" id="food-Farm7-8" oninput="calculateSubTotal('food', 8)"></td>
+
+<td id="food-Subtotal-8" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="food-Amount-9">1500000</td>
+        <td><input type="number"
+ id="food-Main-9" oninput="calculateSubTotal('food', 9)"></td>
+        <td><input type="number" id="food-Farm1-9" oninput="calculateSubTotal('food', 9)"></td>
+<td><input type="number" id="food-Farm2-9" oninput="calculateSubTotal('food', 9)"></td>
+<td><input type="number" id="food-Farm3-9" oninput="calculateSubTotal('food', 9)"></td>
+<td><input type="number" id="food-Farm4-9" oninput="calculateSubTotal('food', 9)"></td>
+<td><input type="number" id="food-Farm5-9" oninput="calculateSubTotal('food', 9)"></td>
+<td><input type="number" id="food-Farm6-9" oninput="calculateSubTotal('food', 9)"></td>
+<td><input type="number" id="food-Farm7-9" oninput="calculateSubTotal('food', 9)"></td>
+
+<td id="food-Subtotal-9" class="subtotal-cell"></td>
+      </tr>
+
+</tbody>
+    <tfoot>
+      <tr>
+        <td colspan="1">Total:</td>
+        <td id="food-Total"></td>
+      </tr>
+    </tfoot>
+  </table>
+
+
+   
+
+  <h2>  Wood  </h2>
+  <table id="wood">
+    <thead>
+      <tr>
+        <th>Amount</th>
+        <th>Main</th>
+        <th>Farm1</th>
+        <th>Farm2</th>
+        <th>Farm3</th>
+        <th>Farm4</th>
+        <th>Farm5</th>
+        <th>Farm6</th>
+        <th>Farm7</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td id="wood-Amount-1">1000</td>
+        <td><input type="number" id="wood-Main-1" oninput="calculateSubTotal('wood', 1)" /></td>
+        <td><input type="number" id="wood-Farm1-1" oninput="calculateSubTotal('wood', 1)" /></td>
+        <td><input type="number" id="wood-Farm2-1" oninput="calculateSubTotal('wood', 1)" /></td>
+        <td><input type="number" id="wood-Farm3-1" oninput="calculateSubTotal('wood', 1)" /></td>
+        <td><input type="number" id="wood-Farm4-1" oninput="calculateSubTotal('wood', 1)" /></td>
+        <td><input type="number" id="wood-Farm5-1" oninput="calculateSubTotal('wood', 1)" /></td>
+        <td><input type="number" id="wood-Farm6-1" oninput="calculateSubTotal('wood', 1)" /></td>
+        <td><input type="number" id="wood-Farm7-1" oninput="calculateSubTotal('wood', 1)" /></td>
+        <td id="wood-Subtotal-1" class="subtotal-cell"></td>
+      </tr>
+      <tr>
+        <td id="wood-Amount-2">3000</td>
+        <td><input type="number" id="wood-Main-2" oninput="calculateSubTotal('wood', 2)" /></td>
+        <td><input type="number" id="wood-Farm1-2" oninput="calculateSubTotal('wood', 2)" /></td>
+        <td><input type="number" id="wood-Farm2-2" oninput="calculateSubTotal('wood', 2)" /></td>
+        <td><input type="number" id="wood-Farm3-2" oninput="calculateSubTotal('wood', 2)" /></td>
+        <td><input type="number" id="wood-Farm4-2" oninput="calculateSubTotal('wood', 2)" /></td>
+        <td><input type="number" id="wood-Farm5-2" oninput="calculateSubTotal('wood', 2)" /></td>
+        <td><input type="number" id="wood-Farm6-2" oninput="calculateSubTotal('wood', 2)" /></td>
+        <td><input type="number" id="wood-Farm7-2" oninput="calculateSubTotal('wood', 2)" /></td>
+        <td id="wood-Subtotal-2" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="wood-Amount-3">5000</td>
+        <td><input type="number" id="wood-Main-3" oninput="calculateSubTotal('wood', 3)" /></td>
+        <td><input type="number" id="wood-Farm1-3" oninput="calculateSubTotal('wood', 3)" /></td>
+        <td><input type="number" id="wood-Farm2-3" oninput="calculateSubTotal('wood', 3)" /></td>
+        <td><input type="number" id="wood-Farm3-3" oninput="calculateSubTotal('wood', 3)" /></td>
+        <td><input type="number" id="wood-Farm4-3" oninput="calculateSubTotal('wood', 3)" /></td>
+        <td><input type="number" id="wood-Farm5-3" oninput="calculateSubTotal('wood', 3)" /></td>
+        <td><input type="number" id="wood-Farm6-3" oninput="calculateSubTotal('wood', 3)" /></td>
+        <td><input type="number" id="wood-Farm7-3" oninput="calculateSubTotal('wood', 3)" /></td>
+        <td id="wood-Subtotal-3" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="wood-Amount-4">10000</td>
+        <td><input type="number" id="wood-Main-4" oninput="calculateSubTotal('wood', 4)" /></td>
+        <td><input type="number" id="wood-Farm1-4" oninput="calculateSubTotal('wood', 4)" /></td>
+        <td><input type="number" id="wood-Farm2-4" oninput="calculateSubTotal('wood', 4)" /></td>
+        <td><input type="number" id="wood-Farm3-4" oninput="calculateSubTotal('wood', 4)" /></td>
+        <td><input type="number" id="wood-Farm4-4" oninput="calculateSubTotal('wood', 4)" /></td>
+        <td><input type="number" id="wood-Farm5-4" oninput="calculateSubTotal('wood', 4)" /></td>
+        <td><input type="number" id="wood-Farm6-4" oninput="calculateSubTotal('wood', 4)" /></td>
+        <td><input type="number" id="wood-Farm7-4" oninput="calculateSubTotal('wood', 4)" /></td>
+        <td id="wood-Subtotal-4" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="wood-Amount-5">30000</td>
+        <td><input type="number" id="wood-Main-5" oninput="calculateSubTotal('wood', 5)" /></td>
+        <td><input type="number" id="wood-Farm1-5" oninput="calculateSubTotal('wood', 5)" /></td>
+        <td><input type="number" id="wood-Farm2-5" oninput="calculateSubTotal('wood', 5)" /></td>
+        <td><input type="number" id="wood-Farm3-5" oninput="calculateSubTotal('wood', 5)" /></td>
+        <td><input type="number" id="wood-Farm4-5" oninput="calculateSubTotal('wood', 5)" /></td>
+        <td><input type="number" id="wood-Farm5-5" oninput="calculateSubTotal('wood', 5)" /></td>
+        <td><input type="number" id="wood-Farm6-5" oninput="calculateSubTotal('wood', 5)" /></td>
+        <td><input type="number" id="wood-Farm7-5" oninput="calculateSubTotal('wood', 5)" /></td>
+        <td id="wood-Subtotal-5" class="subtotal-cell"></td>
+      </tr>
+
+
+<tr>
+        <td id="wood-Amount-6">50000</td>
+        <td><input type="number" id="wood-Main-6" oninput="calculateSubTotal('wood', 6)" /></td>
+        <td><input type="number" id="wood-Farm1-6" oninput="calculateSubTotal('wood', 6)" /></td>
+        <td><input type="number" id="wood-Farm2-6" oninput="calculateSubTotal('wood', 6)" /></td>
+        <td><input type="number" id="wood-Farm3-6" oninput="calculateSubTotal('wood', 6)" /></td>
+        <td><input type="number" id="wood-Farm4-6" oninput="calculateSubTotal('wood', 6)" /></td>
+        <td><input type="number" id="wood-Farm5-6" oninput="calculateSubTotal('wood', 6)" /></td>
+        <td><input type="number" id="wood-Farm6-6" oninput="calculateSubTotal('wood', 6)" /></td>
+        <td><input type="number" id="wood-Farm7-6" oninput="calculateSubTotal('wood', 6)" /></td>
+        <td id="wood-Subtotal-6" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="wood-Amount-7">150000</td>
+        <td><input type="number" id="wood-Main-7" oninput="calculateSubTotal('wood', 7)" /></td>
+        <td><input type="number" id="wood-Farm1-7" oninput="calculateSubTotal('wood', 7)" /></td>
+        <td><input type="number" id="wood-Farm2-7" oninput="calculateSubTotal('wood', 7)" /></td>
+        <td><input type="number" id="wood-Farm3-7" oninput="calculateSubTotal('wood', 7)" /></td>
+        <td><input type="number" id="wood-Farm4-7" oninput="calculateSubTotal('wood', 7)" /></td>
+        <td><input type="number" id="wood-Farm5-7" oninput="calculateSubTotal('wood', 7)" /></td>
+        <td><input type="number" id="wood-Farm6-7" oninput="calculateSubTotal('wood', 7)" /></td>
+        <td><input type="number" id="wood-Farm7-7" oninput="calculateSubTotal('wood', 7)" /></td>
+        <td id="wood-Subtotal-7" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="wood-Amount-8">500000</td>
+        <td><input type="number" id="wood-Main-8" oninput="calculateSubTotal('wood', 8)" /></td>
+        <td><input type="number" id="wood-Farm1-8" oninput="calculateSubTotal('wood', 8)" /></td>
+        <td><input type="number" id="wood-Farm2-8" oninput="calculateSubTotal('wood', 8)" /></td>
+        <td><input type="number" id="wood-Farm3-8" oninput="calculateSubTotal('wood', 8)" /></td>
+        <td><input type="number" id="wood-Farm4-8" oninput="calculateSubTotal('wood', 8)" /></td>
+        <td><input type="number" id="wood-Farm5-8" oninput="calculateSubTotal('wood', 8)" /></td>
+        <td><input type="number" id="wood-Farm6-8" oninput="calculateSubTotal('wood', 8)" /></td>
+        <td><input type="number" id="wood-Farm7-8" oninput="calculateSubTotal('wood', 8)" /></td>
+        <td id="wood-Subtotal-8" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="wood-Amount-9">1500000</td>
+        <td><input type="number" id="wood-Main-9" oninput="calculateSubTotal('wood', 9)" /></td>
+        <td><input type="number" id="wood-Farm1-9" oninput="calculateSubTotal('wood', 9)" /></td>
+        <td><input type="number" id="wood-Farm2-9" oninput="calculateSubTotal('wood', 9)" /></td>
+        <td><input type="number" id="wood-Farm3-9" oninput="calculateSubTotal('wood', 9)" /></td>
+        <td><input type="number" id="wood-Farm4-9" oninput="calculateSubTotal('wood', 9)" /></td>
+        <td><input type="number" id="wood-Farm5-9" oninput="calculateSubTotal('wood', 9)" /></td>
+        <td><input type="number" id="wood-Farm6-9" oninput="calculateSubTotal('wood', 9)" /></td>
+        <td><input type="number" id="wood-Farm7-9" oninput="calculateSubTotal('wood', 9)" /></td>
+        <td id="wood-Subtotal-9" class="subtotal-cell"></td>
+      </tr>
+
+
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="1">Total:</td>
+        <td id="wood-Total"></td>
+      </tr>
+    </tfoot>
+  </table>
+
+
+<h2> Iron </h2>
+  <table id="iron">
+    <thead>
+      <tr>
+        <th>Amount</th>
+        <th>Main</th>
+        <th>Farm1</th>
+        <th>Farm2</th>
+        <th>Farm3</th>
+        <th>Farm4</th>
+        <th>Farm5</th>
+        <th>Farm6</th>
+        <th>Farm7</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td id="iron-Amount-1">200</td>
+        <td><input type="number" id="iron-Main-1" oninput="calculateSubTotal('iron', 1)" /></td>
+        <td><input type="number" id="iron-Farm1-1" oninput="calculateSubTotal('iron', 1)" /></td>
+        <td><input type="number" id="iron-Farm2-1" oninput="calculateSubTotal('iron', 1)" /></td>
+        <td><input type="number" id="iron-Farm3-1" oninput="calculateSubTotal('iron', 1)" /></td>
+        <td><input type="number" id="iron-Farm4-1" oninput="calculateSubTotal('iron', 1)" /></td>
+        <td><input type="number" id="iron-Farm5-1" oninput="calculateSubTotal('iron', 1)" /></td>
+        <td><input type="number" id="iron-Farm6-1" oninput="calculateSubTotal('iron', 1)" /></td>
+        <td><input type="number" id="iron-Farm7-1" oninput="calculateSubTotal('iron', 1)" /></td>
+        <td id="iron-Subtotal-1" class="subtotal-cell"></td>
+      </tr>
+      <tr>
+        <td id="iron-Amount-2">600</td>
+        <td><input type="number" id="iron-Main-2" oninput="calculateSubTotal('iron', 2)" /></td>
+        <td><input type="number" id="iron-Farm1-2" oninput="calculateSubTotal('iron', 2)" /></td>
+        <td><input type="number" id="iron-Farm2-2" oninput="calculateSubTotal('iron', 2)" /></td>
+        <td><input type="number" id="iron-Farm3-2" oninput="calculateSubTotal('iron', 2)" /></td>
+        <td><input type="number" id="iron-Farm4-2" oninput="calculateSubTotal('iron', 2)" /></td>
+        <td><input type="number" id="iron-Farm5-2" oninput="calculateSubTotal('iron', 2)" /></td>
+        <td><input type="number" id="iron-Farm6-2" oninput="calculateSubTotal('iron', 2)" /></td>
+        <td><input type="number" id="iron-Farm7-2" oninput="calculateSubTotal('iron', 2)" /></td>
+        <td id="iron-Subtotal-2" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="iron-Amount-3">2000</td>
+        <td><input type="number" id="iron-Main-3" oninput="calculateSubTotal('iron', 3)" /></td>
+        <td><input type="number" id="iron-Farm1-3" oninput="calculateSubTotal('iron', 3)" /></td>
+        <td><input type="number" id="iron-Farm2-3" oninput="calculateSubTotal('iron', 3)" /></td>
+        <td><input type="number" id="iron-Farm3-3" oninput="calculateSubTotal('iron', 3)" /></td>
+        <td><input type="number" id="iron-Farm4-3" oninput="calculateSubTotal('iron', 3)" /></td>
+        <td><input type="number" id="iron-Farm5-3" oninput="calculateSubTotal('iron', 3)" /></td>
+        <td><input type="number" id="iron-Farm6-3" oninput="calculateSubTotal('iron', 3)" /></td>
+        <td><input type="number" id="iron-Farm7-3" oninput="calculateSubTotal('iron', 3)" /></td>
+        <td id="iron-Subtotal-3" class="subtotal-cell"></td>
+      </tr>
+<tr>
+        <td id="iron-Amount-4">6000</td>
+        <td><input type="number" id="iron-Main-4" oninput="calculateSubTotal('iron', 4)" /></td>
+        <td><input type="number" id="iron-Farm1-4" oninput="calculateSubTotal('iron', 4)" /></td>
+        <td><input type="number" id="iron-Farm2-4" oninput="calculateSubTotal('iron', 4)" /></td>
+        <td><input type="number" id="iron-Farm3-4" oninput="calculateSubTotal('iron', 4)" /></td>
+        <td><input type="number" id="iron-Farm4-4" oninput="calculateSubTotal('iron', 4)" /></td>
+        <td><input type="number" id="iron-Farm5-4" oninput="calculateSubTotal('iron', 4)" /></td>
+        <td><input type="number" id="iron-Farm6-4" oninput="calculateSubTotal('iron', 4)" /></td>
+        <td><input type="number" id="iron-Farm7-4" oninput="calculateSubTotal('iron', 4)" /></td>
+        <td id="iron-Subtotal-4" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="iron-Amount-5">10000</td>
+        <td><input type="number" id="iron-Main-5" oninput="calculateSubTotal('iron', 5)" /></td>
+        <td><input type="number" id="iron-Farm1-5" oninput="calculateSubTotal('iron', 5)" /></td>
+        <td><input type="number" id="iron-Farm2-5" oninput="calculateSubTotal('iron', 5)" /></td>
+        <td><input type="number" id="iron-Farm3-5" oninput="calculateSubTotal('iron', 5)" /></td>
+        <td><input type="number" id="iron-Farm4-5" oninput="calculateSubTotal('iron', 5)" /></td>
+        <td><input type="number" id="iron-Farm5-5" oninput="calculateSubTotal('iron', 5)" /></td>
+        <td><input type="number" id="iron-Farm6-5" oninput="calculateSubTotal('iron', 5)" /></td>
+        <td><input type="number" id="iron-Farm7-5" oninput="calculateSubTotal('iron', 5)" /></td>
+        <td id="iron-Subtotal-5" class="subtotal-cell"></td>
+      </tr>
+<tr>
+        <td id="iron-Amount-6">30000</td>
+        <td><input type="number" id="iron-Main-6" oninput="calculateSubTotal('iron', 6)" /></td>
+        <td><input type="number" id="iron-Farm1-6" oninput="calculateSubTotal('iron', 6)" /></td>
+        <td><input type="number" id="iron-Farm2-6" oninput="calculateSubTotal('iron', 6)" /></td>
+        <td><input type="number" id="iron-Farm3-6" oninput="calculateSubTotal('iron', 6)" /></td>
+        <td><input type="number" id="iron-Farm4-6" oninput="calculateSubTotal('iron', 6)" /></td>
+        <td><input type="number" id="iron-Farm5-6" oninput="calculateSubTotal('iron', 6)" /></td>
+        <td><input type="number" id="iron-Farm6-6" oninput="calculateSubTotal('iron', 6)" /></td>
+        <td><input type="number" id="iron-Farm7-6" oninput="calculateSubTotal('iron', 6)" /></td>
+        <td id="iron-Subtotal-6" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="iron-Amount-7">100000</td>
+        <td><input type="number" id="iron-Main-7" oninput="calculateSubTotal('iron', 7)" /></td>
+        <td><input type="number" id="iron-Farm1-7" oninput="calculateSubTotal('iron', 7)" /></td>
+        <td><input type="number" id="iron-Farm2-7" oninput="calculateSubTotal('iron', 7)" /></td>
+        <td><input type="number" id="iron-Farm3-7" oninput="calculateSubTotal('iron', 7)" /></td>
+        <td><input type="number" id="iron-Farm4-7" oninput="calculateSubTotal('iron', 7)" /></td>
+        <td><input type="number" id="iron-Farm5-7" oninput="calculateSubTotal('iron', 7)" /></td>
+        <td><input type="number" id="iron-Farm6-7" oninput="calculateSubTotal('iron', 7)" /></td>
+        <td><input type="number" id="iron-Farm7-7" oninput="calculateSubTotal('iron', 7)" /></td>
+        <td id="iron-Subtotal-7" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="iron-Amount-8">300000</td>
+        <td><input type="number" id="iron-Main-8" oninput="calculateSubTotal('iron', 8)" /></td>
+        <td><input type="number" id="iron-Farm1-8" oninput="calculateSubTotal('iron', 8)" /></td>
+        <td><input type="number" id="iron-Farm2-8" oninput="calculateSubTotal('iron', 8)" /></td>
+        <td><input type="number" id="iron-Farm3-8" oninput="calculateSubTotal('iron', 8)" /></td>
+        <td><input type="number" id="iron-Farm4-8" oninput="calculateSubTotal('iron', 8)" /></td>
+        <td><input type="number" id="iron-Farm5-8" oninput="calculateSubTotal('iron', 8)" /></td>
+        <td><input type="number" id="iron-Farm6-8" oninput="calculateSubTotal('iron', 8)" /></td>
+        <td><input type="number" id="iron-Farm7-8" oninput="calculateSubTotal('iron', 8)" /></td>
+        <td id="iron-Subtotal-8" class="subtotal-cell"></td>
+      </tr>
+
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="1">Total:</td>
+        <td id="iron-Total"></td>
+      </tr>
+    </tfoot>
+  </table>
+
+
+
+<h2>  Silver </h2>
+  <table id="silver">
+    <thead>
+      <tr>
+        <th>Amount</th>
+        <th>Main</th>
+        <th>Farm1</th>
+        <th>Farm2</th>
+        <th>Farm3</th>
+        <th>Farm4</th>
+        <th>Farm5</th>
+        <th>Farm6</th>
+        <th>Farm7</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td id="silver-Amount-1">50</td>
+        <td><input type="number" id="silver-Main-1" oninput="calculateSubTotal('silver', 1)" /></td>
+        <td><input type="number" id="silver-Farm1-1" oninput="calculateSubTotal('silver', 1)" /></td>
+        <td><input type="number" id="silver-Farm2-1" oninput="calculateSubTotal('silver', 1)" /></td>
+        <td><input type="number" id="silver-Farm3-1" oninput="calculateSubTotal('silver', 1)" /></td>
+        <td><input type="number" id="silver-Farm4-1" oninput="calculateSubTotal('silver', 1)" /></td>
+        <td><input type="number" id="silver-Farm5-1" oninput="calculateSubTotal('silver', 1)" /></td>
+        <td><input type="number" id="silver-Farm6-1" oninput="calculateSubTotal('silver', 1)" /></td>
+        <td><input type="number" id="silver-Farm7-1" oninput="calculateSubTotal('silver', 1)" /></td>
+        <td id="silver-Subtotal-1" class="subtotal-cell"></td>
+      </tr>
+      <tr>
+        <td id="silver-Amount-2">150</td>
+        <td><input type="number" id="silver-Main-2" oninput="calculateSubTotal('silver', 2)" /></td>
+        <td><input type="number" id="silver-Farm1-2" oninput="calculateSubTotal('silver', 2)" /></td>
+        <td><input type="number" id="silver-Farm2-2" oninput="calculateSubTotal('silver', 2)" /></td>
+        <td><input type="number" id="silver-Farm3-2" oninput="calculateSubTotal('silver', 2)" /></td>
+        <td><input type="number" id="silver-Farm4-2" oninput="calculateSubTotal('silver', 2)" /></td>
+        <td><input type="number" id="silver-Farm5-2" oninput="calculateSubTotal('silver', 2)" /></td>
+        <td><input type="number" id="silver-Farm6-2" oninput="calculateSubTotal('silver', 2)" /></td>
+        <td><input type="number" id="silver-Farm7-2" oninput="calculateSubTotal('silver', 2)" /></td>
+        <td id="silver-Subtotal-2" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="silver-Amount-3">500</td>
+        <td><input type="number" id="silver-Main-3" oninput="calculateSubTotal('silver', 3)" /></td>
+        <td><input type="number" id="silver-Farm1-3" oninput="calculateSubTotal('silver', 3)" /></td>
+        <td><input type="number" id="silver-Farm2-3" oninput="calculateSubTotal('silver', 3)" /></td>
+        <td><input type="number" id="silver-Farm3-3" oninput="calculateSubTotal('silver', 3)" /></td>
+        <td><input type="number" id="silver-Farm4-3" oninput="calculateSubTotal('silver', 3)" /></td>
+        <td><input type="number" id="silver-Farm5-3" oninput="calculateSubTotal('silver', 3)" /></td>
+        <td><input type="number" id="silver-Farm6-3" oninput="calculateSubTotal('silver', 3)" /></td>
+        <td><input type="number" id="silver-Farm7-3" oninput="calculateSubTotal('silver', 3)" /></td>
+        <td id="silver-Subtotal-3" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="silver-Amount-4">1500</td>
+        <td><input type="number" id="silver-Main-4" oninput="calculateSubTotal('silver', 4)" /></td>
+        <td><input type="number" id="silver-Farm1-4" oninput="calculateSubTotal('silver', 4)" /></td>
+        <td><input type="number" id="silver-Farm2-4" oninput="calculateSubTotal('silver', 4)" /></td>
+        <td><input type="number" id="silver-Farm3-4" oninput="calculateSubTotal('silver', 4)" /></td>
+        <td><input type="number" id="silver-Farm4-4" oninput="calculateSubTotal('silver', 4)" /></td>
+        <td><input type="number" id="silver-Farm5-4" oninput="calculateSubTotal('silver', 4)" /></td>
+        <td><input type="number" id="silver-Farm6-4" oninput="calculateSubTotal('silver', 4)" /></td>
+        <td><input type="number" id="silver-Farm7-4" oninput="calculateSubTotal('silver', 4)" /></td>
+        <td id="silver-Subtotal-4" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="silver-Amount-5">2500</td>
+        <td><input type="number" id="silver-Main-5" oninput="calculateSubTotal('silver', 5)" /></td>
+        <td><input type="number" id="silver-Farm1-5" oninput="calculateSubTotal('silver', 5)" /></td>
+        <td><input type="number" id="silver-Farm2-5" oninput="calculateSubTotal('silver', 5)" /></td>
+        <td><input type="number" id="silver-Farm3-5" oninput="calculateSubTotal('silver', 5)" /></td>
+        <td><input type="number" id="silver-Farm4-5" oninput="calculateSubTotal('silver', 5)" /></td>
+        <td><input type="number" id="silver-Farm5-5" oninput="calculateSubTotal('silver', 5)" /></td>
+        <td><input type="number" id="silver-Farm6-5" oninput="calculateSubTotal('silver', 5)" /></td>
+        <td><input type="number" id="silver-Farm7-5" oninput="calculateSubTotal('silver', 5)" /></td>
+        <td id="silver-Subtotal-5" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="silver-Amount-6">7500</td>
+        <td><input type="number" id="silver-Main-6" oninput="calculateSubTotal('silver', 6)" /></td>
+        <td><input type="number" id="silver-Farm1-6" oninput="calculateSubTotal('silver', 6)" /></td>
+        <td><input type="number" id="silver-Farm2-6" oninput="calculateSubTotal('silver', 6)" /></td>
+        <td><input type="number" id="silver-Farm3-6" oninput="calculateSubTotal('silver', 6)" /></td>
+        <td><input type="number" id="silver-Farm4-6" oninput="calculateSubTotal('silver', 6)" /></td>
+        <td><input type="number" id="silver-Farm5-6" oninput="calculateSubTotal('silver', 6)" /></td>
+        <td><input type="number" id="silver-Farm6-6" oninput="calculateSubTotal('silver', 6)" /></td>
+        <td><input type="number" id="silver-Farm7-6" oninput="calculateSubTotal('silver', 6)" /></td>
+        <td id="silver-Subtotal-6" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="silver-Amount-7">25000</td>
+        <td><input type="number" id="silver-Main-7" oninput="calculateSubTotal('silver', 7)" /></td>
+        <td><input type="number" id="silver-Farm1-7" oninput="calculateSubTotal('silver', 7)" /></td>
+        <td><input type="number" id="silver-Farm2-7" oninput="calculateSubTotal('silver', 7)" /></td>
+        <td><input type="number" id="silver-Farm3-7" oninput="calculateSubTotal('silver', 7)" /></td>
+        <td><input type="number" id="silver-Farm4-7" oninput="calculateSubTotal('silver', 7)" /></td>
+        <td><input type="number" id="silver-Farm5-7" oninput="calculateSubTotal('silver', 7)" /></td>
+        <td><input type="number" id="silver-Farm6-7" oninput="calculateSubTotal('silver', 7)" /></td>
+        <td><input type="number" id="silver-Farm7-7" oninput="calculateSubTotal('silver', 7)" /></td>
+        <td id="silver-Subtotal-7" class="subtotal-cell"></td>
+      </tr>
+
+<tr>
+        <td id="silver-Amount-8">75000</td>
+        <td><input type="number" id="silver-Main-8" oninput="calculateSubTotal('silver', 8)" /></td>
+        <td><input type="number" id="silver-Farm1-8" oninput="calculateSubTotal('silver', 8)" /></td>
+        <td><input type="number" id="silver-Farm2-8" oninput="calculateSubTotal('silver', 8)" /></td>
+        <td><input type="number" id="silver-Farm3-8" oninput="calculateSubTotal('silver', 8)" /></td>
+        <td><input type="number" id="silver-Farm4-8" oninput="calculateSubTotal('silver', 8)" /></td>
+        <td><input type="number" id="silver-Farm5-8" oninput="calculateSubTotal('silver', 8)" /></td>
+        <td><input type="number" id="silver-Farm6-8" oninput="calculateSubTotal('silver', 8)" /></td>
+        <td><input type="number" id="silver-Farm7-8" oninput="calculateSubTotal('silver', 8)" /></td>
+        <td id="silver-Subtotal-8" class="subtotal-cell"></td>
+      </tr>
+
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="1">Total:</td>
+        <td id="silver-Total"></td>
+      </tr>
+    </tfoot>
+  </table>
+<script type="text/javascript" src="js/script.js"></script>
+</body>
+
+<h2>Quick  Calculations</h2>
+<table id="TotalCalculator">
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Upgrade Requirements</th>
+      <th>Available</th>
+      <th>Difference</th>
+      
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td> Food</td>
+      <td><input type="number" id="UpgradeRequirements-1"></td>
+      <td><input type="number" id="Available-1"></td>
+      <td><input type="number" id="Difference-1" readonly></td>
+      
+    </tr>
+    <tr>
+      <td> Wood</td>
+      <td><input type="number" id="UpgradeRequirements-2"></td>
+      <td><input type="number" id="Available-2"></td>
+      <td><input type="number" id="Difference-2" readonly></td>
+      
+    <tr>
+      <td> Iron</td>
+      <td><input type="number" id="UpgradeRequirements-3"></td>
+      <td><input type="number" id="Available-3"></td>
+      <td><input type="number" id="Difference-3" readonly></td>
+      
+    <tr>
+      <td>Silver</td>
+      <td><input type="number" id="UpgradeRequirements-4"></td>
+      <td><input type="number" id="Available-4"></td>
+      <td><input type="number" id="Difference-4" readonly></td>
+      
+    <tr>
+      <td colspan="2"></td> 
+      <td><button id="calculateButton" style="font-size: 16px; padding: 8px 12px;">Calculate Difference</button></td> <!-- Button column -->
+    </tr>
+  </tbody>
+</table>
+
+<script>
+document.getElementById("calculateButton").addEventListener("click", calculateDifference);
+
+function calculateDifference() {
+  var upgradeRequirements1 = parseInt(document.getElementById("UpgradeRequirements-1").value);
+  var upgradeRequirements2 = parseInt(document.getElementById("UpgradeRequirements-2").value);
+  var upgradeRequirements3 = parseInt(document.getElementById("UpgradeRequirements-3").value);
+  var upgradeRequirements4 = parseInt(document.getElementById("UpgradeRequirements-4").value);
+  var available1 = parseInt(document.getElementById("Available-1").value);
+  var available2 = parseInt(document.getElementById("Available-2").value);
+  var available3 = parseInt(document.getElementById("Available-3").value);
+  var available4 = parseInt(document.getElementById("Available-4").value);
+
+  var difference1 = available1 - upgradeRequirements1; // Inverted calculation
+  var difference2 = available2 - upgradeRequirements2; // Inverted calculation
+  var difference3 = available3 - upgradeRequirements3; // Inverted calculation
+  var difference4 = available4 - upgradeRequirements4; // Inverted calculation
+
+  setResultAndFormatting("Difference-1", difference1);
+  setResultAndFormatting("Difference-2", difference2);
+  setResultAndFormatting("Difference-3", difference3);
+  setResultAndFormatting("Difference-4", difference4);
+}
+
+function setResultAndFormatting(inputId, difference) {
+  var inputElement = document.getElementById(inputId);
+  inputElement.value = difference;
+
+  if (difference > 0) {
+    inputElement.style.color = "red";
+    inputElement.style.fontWeight = "bold";
+  } else if (difference < 0) {
+    inputElement.style.color = "green";
+    inputElement.style.fontWeight = "bold";
+  } else {
+    inputElement.style.color = "";
+    inputElement.style.fontWeight = "";
+  }
+}
+</script>
